@@ -1,0 +1,68 @@
+#include <iostream>
+#include <cstdlib>
+/*
+ 블록에 대한 연산을 제공
+ 여긴 블록에 대한 연산만 제공하고 키 입력은 외부에서 판별
+ 블록은 회전 축으로부터 상대좌표 형태로 저장
+*/
+
+
+int block[7][4][2] = {
+    {{0,0},{},{},{}},
+    {{0,0},{},{},{}},
+    {{0,0},{},{},{}},
+    {{0,0},{},{},{}},
+    {{0,0},{},{},{}},
+    {{0,0},{},{},{}},
+    {{0,0},{},{},{}},
+}; //회전 축은 무조건 idx 0
+
+class Block{
+private:
+    
+    char ** board; //게임판
+
+    char * next_queue; //다음 블록을 저장하는 큐
+    int front , back , _max_size;
+
+    int cur_block; //현재 생성된 블록
+    int cur_shape; //현재 생성된 블록의 회전
+    int speed; // 블록이 떨어지는 속도
+    bool _key_pressed; // 눌렸는지
+    bool space_key_pressed; // 스페이스가 눌렸는지
+    int curY , curX;
+
+    bool on_board; // 블록이 지금 게임판 위인지 판별
+
+    //현재 블록의 좌표를 구함
+    std::pair<int,int> _rotate(std::pair<int,int> coord);
+
+
+    
+public:
+    Block(char ** board, int _max_size, int speed);
+    ~Block();
+
+    void inQueueBlock(); // 랜덤한 블록을 큐에 넣는 함수
+    char popQueueBlock(); // 큐에 있는 블록을 꺼내는 함수
+
+    bool onBoardBlock(); // 큐에서 블록을 하나 꺼내서 게임판에 올려놓는 함수. 성공적으로 생성 시 true 반환
+
+    void rotateBlock(); // 블록의 축을 기준으로 90도 회전하는 함수
+
+    void moveBlock(int dir);// 블록 이동
+
+    void spaceKeyPress(); // 스페이스바 눌렀을 때 
+
+    bool isCollision(int r); // 현재 생성된 블록의 충돌 여부를 판별하는 함수
+
+
+    int controlBlock(); // 게임 진행을 보조 (블록을 생성하고 자동으로 아래로 보냄. 게임을 더 이상 지속할 수 없으면 id를 반환하고 종료)
+
+
+    int clearLine(); // 지울 수 있는 라인이 존재할 경우 라인을 지운다.
+
+    
+    
+    
+};

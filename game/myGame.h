@@ -17,7 +17,7 @@ class myGameInstance : public GameInstance{
 
 private:
     //게임판 
-    //0 : 빈칸 , 1 : 블록 , 2 : 그림자 , 4 : 벽
+    //0 : 빈칸 , 1 : 현재 블록 , 2 : 블록 , 3 : 그림자 , 4 : 벽
     char ** board;
 
     void gameLoop() override;

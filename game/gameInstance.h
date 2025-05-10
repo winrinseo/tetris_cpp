@@ -6,8 +6,6 @@ private:
     bool is_run;
     void run();
 
-
-
 public:
 
     GameInstance();

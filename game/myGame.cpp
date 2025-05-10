@@ -107,9 +107,8 @@ void myGameInstance::drawMenu(){
 
 //메인 렌더링
 void myGameInstance::drawBoard(){
-    // this->drawBorder();
-
     
+    //게임판 그리기
     for(int i = 0;i<MAP_HEIGHT;i++){
 
         for(int j = 0;j<MAP_WIDTH;j++){
@@ -132,6 +131,8 @@ void myGameInstance::drawBoard(){
 
         }
     }
+
+    //상황판 그리기
 }
 
 
@@ -143,10 +144,10 @@ void myGameInstance::drawBoard(){
 
 
 void myGameInstance::gameLoop()  {
+    system("cls");
     this->initTerminal();
     this->initBoard();
     this->drawMenu();
-    system("cls");
 
     this->drawBorder();
 
