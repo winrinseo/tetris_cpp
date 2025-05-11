@@ -7,16 +7,10 @@
 */
 
 
-int block[7][4][2] = {
-    {{0,0},{},{},{}},
-    {{0,0},{},{},{}},
-    {{0,0},{},{},{}},
-    {{0,0},{},{},{}},
-    {{0,0},{},{},{}},
-    {{0,0},{},{},{}},
-    {{0,0},{},{},{}},
-}; //회전 축은 무조건 idx 0
+extern const int BLOCK[7][4][2]; //회전 축은 무조건 idx 0
 
+enum SHAPE {ORIGINAL , ROTATE , MOV};
+enum DIRECTION {UP , DOWN , LEFT , RIGHT};
 class Block{
 private:
     
@@ -26,7 +20,8 @@ private:
     int front , back , _max_size;
 
     int cur_block; //현재 생성된 블록
-    int cur_shape; //현재 생성된 블록의 회전
+    int cur_shape[4][2]; //현재 생성된 블록의 회전
+
     int speed; // 블록이 떨어지는 속도
     bool _key_pressed; // 눌렸는지
     bool space_key_pressed; // 스페이스가 눌렸는지
@@ -50,19 +45,12 @@ public:
 
     void rotateBlock(); // 블록의 축을 기준으로 90도 회전하는 함수
 
-    void moveBlock(int dir);// 블록 이동
+    bool moveBlock(DIRECTION dir);// 블록 이동
 
     void spaceKeyPress(); // 스페이스바 눌렀을 때 
 
-    bool isCollision(int r); // 현재 생성된 블록의 충돌 여부를 판별하는 함수
-
-
-    int controlBlock(); // 게임 진행을 보조 (블록을 생성하고 자동으로 아래로 보냄. 게임을 더 이상 지속할 수 없으면 id를 반환하고 종료)
-
+    bool isCollision(SHAPE shape , int y = 0, int x = 0); // 현재 생성된 블록의 충돌 여부를 판별하는 함수
 
     int clearLine(); // 지울 수 있는 라인이 존재할 경우 라인을 지운다.
-
-    
-    
     
 };

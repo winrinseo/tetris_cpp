@@ -25,9 +25,13 @@ void myGameInstance::initTerminal(){
 
 void myGameInstance::initBoard(){
     this->board = new char*[MAP_HEIGHT];
+    
 
     for(int i = 0;i<MAP_HEIGHT;i++){
         this->board[i] = new char[MAP_WIDTH];
+        // *board[i] = {0};
+        for(int j = 0;j<MAP_WIDTH; j++)
+            this->board[i][j] = 0;
     }
 
     for(int i = 0;i<MAP_HEIGHT;i++){
@@ -123,10 +127,16 @@ void myGameInstance::drawBoard(){
                     printf("■");
                     break;
                 case 2:
+                    printf("■");
+                    break;
+                case 3:
+                    printf("■");
                     break;
                 case 4:
                     printf("□");
                     break;
+                default:
+                    printf("♬");
             }
 
         }
@@ -144,16 +154,50 @@ void myGameInstance::drawBoard(){
 
 
 void myGameInstance::gameLoop()  {
-    system("cls");
-    this->initTerminal();
+    // this->initTerminal();
     this->initBoard();
     this->drawMenu();
-
+    system("cls");
+    
     this->drawBorder();
 
+    Block * b = new Block(board , 3 , 1);
+
+    clock_t last_time = clock();
+
+
+
     while(1){
-        
+        clock_t now = clock();
+
+        // 게임판 렌더링
         this->drawBoard();
+        
+        //게임 설정
+        // while(false && _kbhit()){
+            
+        // }
+
+        double diff = double(now - last_time) / CLOCKS_PER_SEC;
+        
+        b->onBoardBlock();
+        
+        //speed 마다 블록 아래로
+        if(diff > SPEED){
+            gotoxy(0,0);
+            std::cout<<diff;
+            b->moveBlock(DIRECTION::DOWN);
+            last_time = now;
+        }
+        
+        // //키 입력 들어왔을 때
+        if(_kbhit()){
+            int ch = _getch();
+            gotoxy(0 , 0);
+            // printf("click!! % d" , ch);
+            b->rotateBlock();
+        }
+
 
         
         Sleep(30);

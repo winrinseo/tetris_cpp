@@ -1,16 +1,19 @@
 #include <iostream>
 #include <conio.h>
 #include "gameInstance.h"
+#include "block.h"
 
 
-const int BOARD_WIDTH = 100;
-const int BOARD_HEIGHT = 80;
+const int BOARD_WIDTH = 90;
+const int BOARD_HEIGHT = 30;
 
 const int MAP_WIDTH = 12;
-const int MAP_HEIGHT = 22;
+const int MAP_HEIGHT = 23;
 
-const int X_OFFSET = 6;
-const int Y_OFFSET = 5;
+const int X_OFFSET = 5;
+const int Y_OFFSET = 3;
+
+const double SPEED = 0.6;
 
 
 class myGameInstance : public GameInstance{

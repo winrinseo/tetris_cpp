@@ -5,6 +5,12 @@
 
 #include "myGame.h"
 
+void initTerminal(){
+    char command[100];
+    sprintf(command, "%s%d%s%d", "mode con: cols=", BOARD_WIDTH, " lines=",BOARD_HEIGHT);
+    system(command);
+}
+
 //커서 지우기
 void CursorView(char show){
 	HANDLE hConsole;
@@ -18,13 +24,15 @@ void CursorView(char show){
 
 int main(){
 
+    // system("chcp 949");
     SetConsoleOutputCP(CP_UTF8);  // 콘솔 출력 인코딩을 UTF-8로 설정
     SetConsoleCP(CP_UTF8); 
+    initTerminal();
 
     CursorView(0);
-
-    myGameInstance * my = new myGameInstance;
     
+    myGameInstance * my = new myGameInstance;
+     
     my->start();
     return 0;
-}
+} 
