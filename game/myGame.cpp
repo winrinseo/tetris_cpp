@@ -29,7 +29,6 @@ void myGameInstance::initBoard(){
 
     for(int i = 0;i<MAP_HEIGHT;i++){
         this->board[i] = new char[MAP_WIDTH];
-        // *board[i] = {0};
         for(int j = 0;j<MAP_WIDTH; j++)
             this->board[i][j] = 0;
     }
@@ -156,12 +155,12 @@ void myGameInstance::drawBoard(){
 void myGameInstance::gameLoop()  {
     // this->initTerminal();
     this->initBoard();
-    this->drawMenu();
     system("cls");
+    this->drawMenu();
     
     this->drawBorder();
 
-    Block * b = new Block(board , 3 , 1);
+    Block * b = new Block(board , 3);
 
     clock_t last_time = clock();
 
@@ -180,7 +179,7 @@ void myGameInstance::gameLoop()  {
 
         double diff = double(now - last_time) / CLOCKS_PER_SEC;
         
-        b->onBoardBlock();
+        bool is_gen = b->onBoardBlock();
         
         //speed 마다 블록 아래로
         if(diff > SPEED){
@@ -212,9 +211,15 @@ void myGameInstance::gameLoop()  {
             }
 
         }
-
-
         
+        int score = b->clearLine();
+        if(score == -1 || !is_gen) { //반환된 점수가 -1이거나 블록이 생성되지 않았다면 게임 오버
+            break;
+        }
+        
+        //cpu
         Sleep(30);
     }
+    //블록 객체 메모리 해제
+    delete b;
 }

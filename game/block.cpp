@@ -10,17 +10,24 @@ const int BLOCK[7][4][2] = {
     {{0,0},{-1,0},{0,1},{0,-1}}, // ㅗ자 모양
 }; //회전 축은 무조건 idx 0
 
-Block::Block(char ** board, int _max_size, int speed) : 
-    board(board) , _max_size(_max_size) , speed(speed){
+Block::Block(char ** board, int _max_size) : 
+    board(board) , _max_size(_max_size) {
         
         on_board = false;
 
         next_queue = new char[_max_size];
         front = -1 , back = 0;
-
+        
+        
         srand(clock());
 
+        //큐에 다음 블록 추가
         for(int i = 0;i<_max_size;i++) inQueueBlock();
+
+        //비트마스크 배열 초기화
+        BOARD_HEIGHT = 23;
+        full_line_check = new int[BOARD_HEIGHT];
+        for(int i = 0;i<BOARD_HEIGHT;i++) full_line_check[i] = 0;
 }
 
 Block::~Block(){
@@ -146,8 +153,10 @@ bool Block::moveBlock(DIRECTION dir){
         //컨트롤 불가능한 블록은 board에 3로 교체한다.
         if(dir == DOWN) {
             on_board = false;
-            for(int i = 0;i<4;i++)
+            for(int i = 0;i<4;i++){
                 board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 3;
+                recodeLine(curY + cur_shape[i][0] , curX + cur_shape[i][1]);
+            }
         }
         return false;
     }
@@ -165,8 +174,10 @@ void Block::spaceKeyPress(){
     while(!isCollision(SHAPE::MOV , d[DIRECTION::DOWN][0] , d[DIRECTION::DOWN][1]))
         ++curY;
     
-    for(int i = 0 ; i<4;i++)
+    for(int i = 0 ; i<4;i++){
         board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 3;
+        recodeLine(curY + cur_shape[i][0] , curX + cur_shape[i][1]);
+    }
 }
 
 
@@ -196,7 +207,39 @@ void Block::makeShadow(){
     curY = tempY;
 }
 
-//10칸 모두 찬 라인을 지우고 지워진 라인 수를 리턴
+//10칸 모두 찬 라인을 지우고 지워진 라인 수를 리턴, 만약 블록이 1에 닿으면 -1을 리턴해 게임 오버를 알림
 int Block::clearLine(){
     //아래에서부터 
+    int ret = 0;
+    std::queue<char*> normal_line , empty_line;
+    for(int i = BOARD_HEIGHT - 2;i>=1;i--){
+        if(i == 1 && full_line_check[i] >= 1) return -1;
+        if(full_line_check[i] == FULLED_LINE){
+            ret++;
+
+            full_line_check[i] = 0;
+            
+            for(int j = 1;j<11;j++)
+                board[i][j] = 0;
+
+            empty_line.push(board[i]);
+        }else{
+            normal_line.push(board[i]);
+        }
+    }
+
+    //남아있는 라인을 내린다.
+    for(int i = BOARD_HEIGHT - 2;i>=1;i--){
+        if(!normal_line.empty()){ // 블록이 남아있는 라인은 모두 아래에 배치한다.
+            board[i] = normal_line.front(); normal_line.pop();
+        }else{ // 블록이 남아있는 라인이 없다면 남은 라인은 모두 빈 라인을 배치한다.
+            board[i] = empty_line.front(); empty_line.pop();
+        }
+    }
+    return ret;
+}
+
+
+void Block::recodeLine(int y , int x){
+    full_line_check[y] |= (1 << x);
 }

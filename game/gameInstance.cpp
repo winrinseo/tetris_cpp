@@ -9,7 +9,6 @@ GameInstance::~GameInstance(){}
 
 
 void GameInstance::run(){
-    
     while(this->is_run){
         this->gameLoop();
     }
