@@ -193,9 +193,24 @@ void myGameInstance::gameLoop()  {
         // //키 입력 들어왔을 때
         if(_kbhit()){
             int ch = _getch();
-            gotoxy(0 , 0);
-            // printf("click!! % d" , ch);
-            b->rotateBlock();
+            if(ch == 224){
+                ch = _getch();
+                if(ch == 75) // 블록 이동
+                    b->moveBlock(DIRECTION::LEFT);
+                else if(ch == 77)
+                    b->moveBlock(DIRECTION::RIGHT);
+                else if(ch == 80)
+                    b->moveBlock(DIRECTION::DOWN);
+
+                else if(ch == 72) //블록 회전
+                    b->rotateBlock();
+
+            }
+
+            if(ch == 32){
+                b->spaceKeyPress();
+            }
+
         }
 
 

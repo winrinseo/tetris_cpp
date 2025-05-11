@@ -142,3 +142,17 @@ bool Block::moveBlock(DIRECTION dir){
 
     return true;
 }
+
+
+void Block::spaceKeyPress(){
+    if(!on_board) return;
+    on_board = false;
+    for(int i = 0 ; i<4;i++)
+        board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 0;
+
+    while(!isCollision(SHAPE::MOV , d[DOWN][0] , d[DOWN][1]))
+        ++curY;
+    
+    for(int i = 0 ; i<4;i++)
+        board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 2;
+}

@@ -32,7 +32,7 @@ int main(){
     CursorView(0);
     
     myGameInstance * my = new myGameInstance;
-     
+    
     my->start();
     return 0;
 } 
