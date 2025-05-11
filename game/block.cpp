@@ -69,13 +69,20 @@ bool Block::onBoardBlock(){
 
     on_board = true;
 
+    makeShadow();
+
     return true;
 }
 
 void Block::rotateBlock(){
     if(!on_board || cur_block == 3) return; //현재 블록이 없거나 ㅁ자 모양일 경우 즉시 종료
+
     if(!isCollision(SHAPE::ROTATE)){
+
+        
         int temp[4][2] = {0};
+        deleteShadow(); //그림자 제거
+        
         for(int i = 0;i<4;i++){
             std::pair<int,int> r = _rotate({cur_shape[i][0] , cur_shape[i][1]});
             temp[i][0] = r.first;
@@ -87,6 +94,7 @@ void Block::rotateBlock(){
             cur_shape[i][1] = temp[i][1];
             board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 1;
         }
+        makeShadow(); //그림자 생성
     }
 
 }
@@ -95,18 +103,18 @@ bool Block::isCollision(SHAPE shape , int y , int x){ // ORIGINAL : 원본 , ROT
 
     if(shape == ORIGINAL){
         for(int i = 0;i<4;i++){
-           if( board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] >= 2)
+           if( board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] > 2)
             return true;
         }
     }else if(shape == ROTATE){
         for(int i = 0;i<4;i++){
             std::pair<int,int> r = _rotate({cur_shape[i][0] , cur_shape[i][1]});
-            if( board[curY + r.first][curX + r.second] >= 2)
+            if( board[curY + r.first][curX + r.second] > 2)
              return true;
          }
     }else if(shape == MOV){//움직이는 방향에 장애물이 있는지 확인
         for(int i = 0;i<4;i++){
-            if( board[curY + cur_shape[i][0] + y][curX + cur_shape[i][1] + x] >= 2)
+            if( board[curY + cur_shape[i][0] + y][curX + cur_shape[i][1] + x] > 2)
              return true;
          }
     }
@@ -121,21 +129,25 @@ bool Block::moveBlock(DIRECTION dir){
     if(!on_board) return false; // 블록이 없다면
 
     if(!isCollision(SHAPE::MOV , d[dir][0] , d[dir][1])){
+        deleteShadow(); // 그림자 제거
+
         for(int i = 0;i<4;i++)
             board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 0;
         
         curY += d[dir][0]; curX += d[dir][1];
+        makeShadow(); // 실제 블록이 그림자에 묻히지 않도록, 블록의 위치만 정해졌을 때 그림자를 그린다.
+                        // 실제 블록이 그림자를 덧씌울 수 있도록
 
         for(int i = 0;i<4;i++)
             board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 1;
-
+        
     }else {
         //바닥에 닿았을 때 블록을 새로 생성하기 위해 on_board를 끈다
-        //컨트롤 불가능한 블록은 board에 2로 교체한다.
+        //컨트롤 불가능한 블록은 board에 3로 교체한다.
         if(dir == DOWN) {
             on_board = false;
             for(int i = 0;i<4;i++)
-                board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 2;
+                board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 3;
         }
         return false;
     }
@@ -150,9 +162,41 @@ void Block::spaceKeyPress(){
     for(int i = 0 ; i<4;i++)
         board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 0;
 
-    while(!isCollision(SHAPE::MOV , d[DOWN][0] , d[DOWN][1]))
+    while(!isCollision(SHAPE::MOV , d[DIRECTION::DOWN][0] , d[DIRECTION::DOWN][1]))
         ++curY;
     
     for(int i = 0 ; i<4;i++)
+        board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 3;
+}
+
+
+void Block::deleteShadow(){
+    int tempY = curY;
+
+    while(!isCollision(SHAPE::MOV , d[DIRECTION::DOWN][0] , d[DIRECTION::DOWN][1]))
+      ++curY;
+    
+    for(int i = 0; i<4;i++){
+        board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 0;
+    }
+    curY = tempY;
+}
+
+void Block::makeShadow(){
+    int tempY = curY;
+
+    while(!isCollision(SHAPE::MOV , d[DIRECTION::DOWN][0] , d[DIRECTION::DOWN][1]))
+        ++curY;
+
+    for(int i = 0; i<4;i++){
+        if(board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] == 1)
+            continue;
         board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 2;
+    }
+    curY = tempY;
+}
+
+//10칸 모두 찬 라인을 지우고 지워진 라인 수를 리턴
+int Block::clearLine(){
+    //아래에서부터 
 }

@@ -51,6 +51,9 @@ public:
 
     bool isCollision(SHAPE shape , int y = 0, int x = 0); // 현재 생성된 블록의 충돌 여부를 판별하는 함수
 
+    void deleteShadow(); // 기존에 생성되어 있던 그림자 제거
+    void makeShadow(); // 현재 생성된 블록의 예상 착지 지점
+
     int clearLine(); // 지울 수 있는 라인이 존재할 경우 라인을 지운다.
     
 };

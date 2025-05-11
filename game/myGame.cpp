@@ -127,7 +127,7 @@ void myGameInstance::drawBoard(){
                     printf("■");
                     break;
                 case 2:
-                    printf("■");
+                    printf("▨");
                     break;
                 case 3:
                     printf("■");
