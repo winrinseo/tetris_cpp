@@ -23,6 +23,7 @@ void myGameInstance::initTerminal(){
     SetConsoleWindowInfo(hConsole, TRUE, &windowSize);
 }
 
+//플레이어 수에 따른 게임 판 초기화
 void myGameInstance::initBoard(){
     this->board = new char**[PLAYER];
     
@@ -48,6 +49,19 @@ void myGameInstance::initBoard(){
             board[p][MAP_HEIGHT-1][i] = 4;
         }
     }
+}
+
+// 게임판 메모리 해제
+void myGameInstance::delBoard(){
+    for(int p = 0; p < PLAYER; p++){
+
+        for(int i = 0;i<MAP_HEIGHT;i++){
+            delete[] this->board[p][i]; // char *
+        }
+        delete[] this->board[p]; // char **
+    }
+
+    delete[] this->board; // char ***
 }
 
 //콘솔 테두리 그리기
@@ -284,4 +298,6 @@ void myGameInstance::gameLoop()  {
             this->singleGame();
             break;
     }
+
+    
 }

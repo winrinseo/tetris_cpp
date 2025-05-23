@@ -39,18 +39,22 @@ private:
     void gotoxy(int x,int y);
     void initTerminal();
 
+    //게임판을 생성하는 함수
     void initBoard();
+    //게임판을 제거하는 함수
+    void delBoard();
 
     //테두리 그리는 함수
     void drawBorder();
-
+    //메뉴 선택
     MODE drawMenu();
+    //화면에 게임판 그리는 함수 player에 따라 따로 그림
     void drawBoard(int x_offset , int y_offset , int player);
-
+    //싱글 게임
     int singleGame();
-
+    //멀티 게임
     int localGame();
-
+    //서버 멀티 게임
     int serverGame();
 
 };
