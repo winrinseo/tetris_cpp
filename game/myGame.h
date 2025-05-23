@@ -20,9 +20,7 @@ const int Y_OFFSET = 2;
 
 const double SPEED = 0.6;
 
-// 게임판 색깔 지정
-enum _BOARD {EMPTY , CUR_BLOCK , SHADOW , PREV_BLOCK , WALL , 
-    SKY_BLUE = 100 , BLUE , ORANGE , YELLOW , GREEN , PURPLE , RED};
+
 
 //게임 모드 (modesize는 모드의 갯수를 나타냄)
 enum MODE {NORMAL , PVP_LOCAL , PVP_SERVER , MODE_SIZE};
@@ -49,7 +47,9 @@ private:
     //메뉴 선택
     MODE drawMenu();
     //화면에 게임판 그리는 함수 player에 따라 따로 그림
-    void drawBoard(int x_offset , int y_offset , int player);
+    void drawBoard(int x_offset , int y_offset , int player , Block * b);
+    //다음 블록을 그리는 함수
+    void drawNext(int x_offset , int y_offset , int player , Block * b);
     //싱글 게임
     int singleGame();
     //멀티 게임

@@ -2,6 +2,14 @@
 #include <windows.h>
 
 
+// 콘솔 색상 변경
+void setColor(int color , int bgcolor){
+    color &= 0xf;
+    bgcolor &= 0xf;
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+                           (bgcolor << 4) | color);
+}
+
 //커서 이동
 void myGameInstance::gotoxy(int x, int y){
     if (x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT) {
@@ -34,19 +42,19 @@ void myGameInstance::initBoard(){
         for(int i = 0;i<MAP_HEIGHT;i++){
             this->board[p][i] = new char[MAP_WIDTH];
             for(int j = 0;j<MAP_WIDTH; j++)
-                this->board[p][i][j] = 0;
+                this->board[p][i][j] = _BOARD::EMPTY;
         }
     }
 
     
     for(int p = 0; p< PLAYER; p++){
         for(int i = 0;i<MAP_HEIGHT;i++){
-            board[p][i][0] = 4;
-            board[p][i][MAP_WIDTH-1] = 4;
+            board[p][i][0] = _BOARD::WALL;
+            board[p][i][MAP_WIDTH-1] = _BOARD::WALL;
         }
 
         for(int i = 0;i<MAP_WIDTH;i++){
-            board[p][MAP_HEIGHT-1][i] = 4;
+            board[p][MAP_HEIGHT-1][i] = _BOARD::WALL;
         }
     }
 }
@@ -167,7 +175,7 @@ MODE myGameInstance::drawMenu(){
 
 
 //메인 렌더링
-void myGameInstance::drawBoard(int x_offset , int y_offset , int player){
+void myGameInstance::drawBoard(int x_offset , int y_offset , int player , Block * b){
     
     //게임판 그리기
     //요청받은 플레이어의 게임판을 그린다.
@@ -176,31 +184,36 @@ void myGameInstance::drawBoard(int x_offset , int y_offset , int player){
         for(int j = 0;j<MAP_WIDTH;j++){
 
             gotoxy(x_offset + (j * 2) , y_offset + i);
-            
-            switch(this->board[player][i][j]){
-                case 0:
+            _BOARD piece = static_cast<_BOARD>(this->board[player][i][j]);
+                if( piece == EMPTY ){
+                    setColor(WHITE , 0);
                     printf(" ");
-                    break;
-                case 1:
+                }else if( piece ==  CUR_BLOCK){
+                    setColor(BLOCK_COLOR[b->getCurrentBlock()] , 0);
                     printf("■");
-                    break;
-                case 2:
+                }else if ( piece == SHADOW){
+                    setColor(WHITE , 0);
                     printf("▨");
-                    break;
-                case 3:
+                }else if( piece == PREV_BLOCK){
+                    setColor(WHITE , 0);
                     printf("■");
-                    break;
-                case 4:
+                }else if(piece == WALL){
+                    setColor(WHITE , 0);
                     printf("□");
-                    break;
-                default:
+                }else if(piece < 100){ // 색상 블록일 경우
+                    setColor(piece , 0);
+                    printf("■");
+                }else{
                     printf("♬");
-            }
+                }
+            
 
         }
     }
+}
 
-    //상황판 그리기
+void myGameInstance::drawNext(int x_offset , int y_offset , int player , Block * b){
+
 }
 
 
@@ -217,7 +230,7 @@ int myGameInstance::singleGame(){
         clock_t now = clock();
 
         // 게임판 렌더링
-        this->drawBoard(X_OFFSET , Y_OFFSET , 0);
+        this->drawBoard(X_OFFSET , Y_OFFSET , 0 , b);
         
         //게임 설정
         // while(false && _kbhit()){

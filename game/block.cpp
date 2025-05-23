@@ -10,6 +10,9 @@ const int BLOCK[7][4][2] = {
     {{0,0},{-1,0},{0,1},{0,-1}}, // ㅗ자 모양
 }; //회전 축은 무조건 idx 0
 
+const __BOARD BLOCK_COLOR[7]={ //블록 형상과 대응되는 색상
+    CYAN , BLUE , DARKYELLOW , YELLOW , GREEN , MAGENTA , RED
+};
 Block::Block(char ** board, int _max_size) : 
     board(board) , _max_size(_max_size) {
         
@@ -51,6 +54,14 @@ char Block::popQueueBlock(){
     return next_queue[front++];
 }
 
+char Block::peekQueueBlock(){
+    return next_queue[front];
+}
+
+int Block::getCurrentBlock(){
+    return cur_block;
+}
+
 bool Block::onBoardBlock(){
     // 생성 위치에 블록이 가득차서 생성하지 못하는 경우를 제외하곤 true 반환
     if(on_board) return true;
@@ -69,7 +80,7 @@ bool Block::onBoardBlock(){
         //꺼낸만큼 다시 생성해 인큐
         inQueueBlock();
         for(int i = 0;i<4;i++){
-            board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 1;
+            board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = _BOARD::CUR_BLOCK;
         }
     }
     else return false;
@@ -94,12 +105,12 @@ void Block::rotateBlock(){
             std::pair<int,int> r = _rotate({cur_shape[i][0] , cur_shape[i][1]});
             temp[i][0] = r.first;
             temp[i][1] = r.second;
-            board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 0; // 기존 블록은 지워준다
+            board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = _BOARD::EMPTY; // 기존 블록은 지워준다
         }
         for(int i = 0;i<4;i++){
             cur_shape[i][0] = temp[i][0];
             cur_shape[i][1] = temp[i][1];
-            board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 1;
+            board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = _BOARD::CUR_BLOCK;
         }
         makeShadow(); //그림자 생성
     }
@@ -110,18 +121,18 @@ bool Block::isCollision(SHAPE shape , int y , int x){ // ORIGINAL : 원본 , ROT
 
     if(shape == ORIGINAL){
         for(int i = 0;i<4;i++){
-           if( board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] > 2)
+           if( board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] < _BOARD::EMPTY)
             return true;
         }
     }else if(shape == ROTATE){
         for(int i = 0;i<4;i++){
             std::pair<int,int> r = _rotate({cur_shape[i][0] , cur_shape[i][1]});
-            if( board[curY + r.first][curX + r.second] > 2)
+            if( board[curY + r.first][curX + r.second] < _BOARD::EMPTY )
              return true;
          }
     }else if(shape == MOV){//움직이는 방향에 장애물이 있는지 확인
         for(int i = 0;i<4;i++){
-            if( board[curY + cur_shape[i][0] + y][curX + cur_shape[i][1] + x] > 2)
+            if( board[curY + cur_shape[i][0] + y][curX + cur_shape[i][1] + x] < _BOARD::EMPTY )
              return true;
          }
     }
@@ -139,22 +150,22 @@ bool Block::moveBlock(DIRECTION dir){
         deleteShadow(); // 그림자 제거
 
         for(int i = 0;i<4;i++)
-            board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 0;
+            board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = _BOARD::EMPTY;
         
         curY += d[dir][0]; curX += d[dir][1];
         makeShadow(); // 실제 블록이 그림자에 묻히지 않도록, 블록의 위치만 정해졌을 때 그림자를 그린다.
                         // 실제 블록이 그림자를 덧씌울 수 있도록
 
         for(int i = 0;i<4;i++)
-            board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 1;
+            board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = _BOARD::CUR_BLOCK;
         
     }else {
         //바닥에 닿았을 때 블록을 새로 생성하기 위해 on_board를 끈다
-        //컨트롤 불가능한 블록은 board에 3로 교체한다.
+        //컨트롤 불가능한 블록은 board에 PREV_BLOCK으로 교체한다.
         if(dir == DOWN) {
             on_board = false;
             for(int i = 0;i<4;i++){
-                board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 3;
+                board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = BLOCK_COLOR[this->cur_block];
                 recodeLine(curY + cur_shape[i][0] , curX + cur_shape[i][1]);
             }
         }
@@ -169,13 +180,13 @@ void Block::spaceKeyPress(){
     if(!on_board) return;
     on_board = false;
     for(int i = 0 ; i<4;i++)
-        board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 0;
+        board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = _BOARD::EMPTY;
 
     while(!isCollision(SHAPE::MOV , d[DIRECTION::DOWN][0] , d[DIRECTION::DOWN][1]))
         ++curY;
     
     for(int i = 0 ; i<4;i++){
-        board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 3;
+        board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = BLOCK_COLOR[this->cur_block];
         recodeLine(curY + cur_shape[i][0] , curX + cur_shape[i][1]);
     }
 }
@@ -188,7 +199,7 @@ void Block::deleteShadow(){
       ++curY;
     
     for(int i = 0; i<4;i++){
-        board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 0;
+        board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = _BOARD::EMPTY;
     }
     curY = tempY;
 }
@@ -200,9 +211,9 @@ void Block::makeShadow(){
         ++curY;
 
     for(int i = 0; i<4;i++){
-        if(board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] == 1)
+        if(board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] == _BOARD::CUR_BLOCK)
             continue;
-        board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = 2;
+        board[curY + cur_shape[i][0]][curX + cur_shape[i][1]] = _BOARD::SHADOW;
     }
     curY = tempY;
 }
@@ -221,7 +232,7 @@ int Block::clearLine(){
             full_line_check[i] = 0;
             
             for(int j = 1;j<11;j++)
-                board[i][j] = 0;
+                board[i][j] = _BOARD::EMPTY;
 
             empty_line.push(board[i]);
             empty_bit.push(full_line_check[i]);
@@ -235,10 +246,10 @@ int Block::clearLine(){
     for(int i = BOARD_HEIGHT - 2;i>=1;i--){
         if(!normal_line.empty()){ // 블록이 남아있는 라인은 모두 아래에 배치한다.
             board[i] = normal_line.front(); normal_line.pop();
-            full_line_check[i] = normal_bit.front();normal_bit.pop();
+            full_line_check[i] = normal_bit.front(); normal_bit.pop();
         }else{ // 블록이 남아있는 라인이 없다면 남은 라인은 모두 빈 라인을 배치한다.
             board[i] = empty_line.front(); empty_line.pop();
-            full_line_check[i] = empty_bit.front();empty_bit.pop();
+            full_line_check[i] = empty_bit.front(); empty_bit.pop();
         }
     }
     return ret;

@@ -7,12 +7,35 @@
  블록은 회전 축으로부터 상대좌표 형태로 저장
 */
 
+// 게임판 색깔 지정
+typedef enum __BOARD {
+    BLACK,
+    DARKBLUE,
+    DARKGREEN,
+    DARKCYAN,
+    DARKRED,
+    DARKMAGENTA,
+    DARKYELLOW,
+    GRAY,
+    DARKGRAY,
+    BLUE,
+    GREEN,
+    CYAN,
+    RED,
+    MAGENTA,
+    YELLOW,
+    WHITE,
+    WALL = 99 , EMPTY = 100, CUR_BLOCK , SHADOW , PREV_BLOCK , } _BOARD;
 
 extern const int BLOCK[7][4][2]; //회전 축은 무조건 idx 0
+extern const _BOARD BLOCK_COLOR[7]; //회전 축은 무조건 idx 0
 
 enum SHAPE {ORIGINAL , ROTATE , MOV};
 enum DIRECTION {UP , DOWN , LEFT , RIGHT};
 const int FULLED_LINE = (1 << 11) - 2; //라인이 가득 찼을 때의 비트마스킹
+
+
+
 class Block{
 private:
     
@@ -45,6 +68,9 @@ public:
 
     void inQueueBlock(); // 랜덤한 블록을 큐에 넣는 함수
     char popQueueBlock(); // 큐에 있는 블록을 꺼내는 함수
+    char peekQueueBlock();
+
+    int getCurrentBlock(); // 현재 블록 번호 반환
 
     bool onBoardBlock(); // 큐에서 블록을 하나 꺼내서 게임판에 올려놓는 함수. 성공적으로 생성 시 true 반환
 
