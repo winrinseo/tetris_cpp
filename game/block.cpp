@@ -207,13 +207,14 @@ void Block::makeShadow(){
     curY = tempY;
 }
 
-//10칸 모두 찬 라인을 지우고 지워진 라인 수를 리턴, 만약 블록이 1에 닿으면 -1을 리턴해 게임 오버를 알림
+//10칸 모두 찬 라인을 지우고 지워진 라인 수를 리턴, 만약 블록이 2에 닿으면 -1을 리턴해 게임 오버를 알림
 int Block::clearLine(){
     //아래에서부터 
     int ret = 0;
     std::queue<char*> normal_line , empty_line;
+    std::queue<int> normal_bit , empty_bit;
     for(int i = BOARD_HEIGHT - 2;i>=1;i--){
-        if(i == 1 && full_line_check[i] >= 1) return -1;
+        if(i == 2 && full_line_check[i] >= 1) return -1;
         if(full_line_check[i] == FULLED_LINE){
             ret++;
 
@@ -223,8 +224,10 @@ int Block::clearLine(){
                 board[i][j] = 0;
 
             empty_line.push(board[i]);
+            empty_bit.push(full_line_check[i]);
         }else{
             normal_line.push(board[i]);
+            normal_bit.push(full_line_check[i]);
         }
     }
 
@@ -232,8 +235,10 @@ int Block::clearLine(){
     for(int i = BOARD_HEIGHT - 2;i>=1;i--){
         if(!normal_line.empty()){ // 블록이 남아있는 라인은 모두 아래에 배치한다.
             board[i] = normal_line.front(); normal_line.pop();
+            full_line_check[i] = normal_bit.front();normal_bit.pop();
         }else{ // 블록이 남아있는 라인이 없다면 남은 라인은 모두 빈 라인을 배치한다.
             board[i] = empty_line.front(); empty_line.pop();
+            full_line_check[i] = empty_bit.front();empty_bit.pop();
         }
     }
     return ret;

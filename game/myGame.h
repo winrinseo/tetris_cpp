@@ -1,27 +1,38 @@
+/*
+ 전체적인 게임 로직은 이곳에서 정의
+ 
+*/
 #include <iostream>
 #include <conio.h>
 #include "gameInstance.h"
 #include "block.h"
 
-
-const int BOARD_WIDTH = 90;
+// 게임 설정
+const int PLAYER = 2;
+const int BOARD_WIDTH = 100;
 const int BOARD_HEIGHT = 30;
 
 const int MAP_WIDTH = 12;
 const int MAP_HEIGHT = 23;
 
 const int X_OFFSET = 5;
-const int Y_OFFSET = 3;
+const int Y_OFFSET = 2;
 
 const double SPEED = 0.6;
 
+// 게임판 색깔 지정
+enum _BOARD {EMPTY , CUR_BLOCK , SHADOW , PREV_BLOCK , WALL , 
+    SKY_BLUE = 100 , BLUE , ORANGE , YELLOW , GREEN , PURPLE , RED};
+
+//게임 모드 (modesize는 모드의 갯수를 나타냄)
+enum MODE {NORMAL , PVP_LOCAL , PVP_SERVER , MODE_SIZE};
 
 class myGameInstance : public GameInstance{
 
 private:
     //게임판 
-    //0 : 빈칸 , 1 : 현재 블록 , 2 : 그림자 , 3 : 블록 , 4 : 벽
-    char ** board;
+    //0 : 빈칸 , 1 : 현재 블록 , 2 : 그림자 , 3 : 블록 , 4 : 벽 , 100 ~ : 색상 블록
+    char *** board;
 
     void gameLoop() override;
 
@@ -33,7 +44,13 @@ private:
     //테두리 그리는 함수
     void drawBorder();
 
-    void drawMenu();
-    void drawBoard();
+    MODE drawMenu();
+    void drawBoard(int x_offset , int y_offset , int player);
+
+    int singleGame();
+
+    int localGame();
+
+    int serverGame();
 
 };
