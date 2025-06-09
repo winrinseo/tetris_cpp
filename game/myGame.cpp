@@ -10,6 +10,17 @@ void setColor(int color , int bgcolor){
                            (bgcolor << 4) | color);
 }
 
+
+//생성자
+myGameInstance::myGameInstance(){
+    this->tetris = new Block*[8];
+}
+//소멸자
+
+myGameInstance::~myGameInstance(){
+    delete[] this->tetris;
+}
+
 //커서 이동
 void myGameInstance::gotoxy(int x, int y){
     if (x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT) {
@@ -35,7 +46,7 @@ void myGameInstance::initTerminal(){
 void myGameInstance::initBoard(){
     this->board = new char**[PLAYER];
     
-    for(int p = 0; p< PLAYER; p++){
+    for(int p = 0; p < PLAYER; p++){
 
         this->board[p] = new char*[MAP_HEIGHT];
 
@@ -104,6 +115,86 @@ void myGameInstance::drawBorder(){
 
     gotoxy(0, BOARD_HEIGHT-1);
 	printf("┗");
+}
+
+//싱글 게임의 화면을 그린다. (테두리 등 변하지 않을 화면)
+void myGameInstance::drawSingle(){
+    int x_offset = X_OFFSET + 25;
+    int y_offset = Y_OFFSET;
+    int width = 8 , height = 3;
+
+    //NEXT 및 테두리 그리기
+    gotoxy(x_offset + 1, y_offset);
+    printf(" NEXT");
+
+    gotoxy(x_offset , y_offset);
+    printf("┏");
+
+    for(int i = y_offset + 1;i < y_offset + height; i++){
+        gotoxy(x_offset, i);
+        printf("┃");
+    }
+    gotoxy(x_offset, y_offset + height);
+    printf("┗");
+
+    for(int i = x_offset + 1;i<x_offset + width; i++){
+        gotoxy(i , y_offset + height);
+        printf("━");
+    }
+    gotoxy(x_offset + width , y_offset + height);
+    printf("┛");
+
+    for(int i = y_offset + 2 ; i >= y_offset + 1; i--){
+        gotoxy(x_offset + width , i);
+        printf("┃");
+    }
+    gotoxy(x_offset + width , y_offset);
+    printf("┓");
+
+    //점수판 테두리 그리기
+
+    x_offset = x_offset;
+    y_offset = y_offset + 7;
+    width = 50 , height = 15;
+
+    gotoxy(x_offset , y_offset);
+    printf("┏");
+
+    for(int i = y_offset + 1;i < y_offset + height; i++){
+        gotoxy(x_offset , i);
+        printf("┃");
+    }
+    gotoxy(x_offset, y_offset + height);
+    printf("┗");
+
+    for(int i = x_offset + 1;i<x_offset + width; i++){
+        gotoxy(i , y_offset + height);
+        printf("━");
+    }
+    gotoxy(x_offset + width , y_offset + height);
+    printf("┛");
+
+    for(int i = y_offset + height - 1 ; i >= y_offset + 1; i--){
+        gotoxy(x_offset + width , i);
+        printf("┃");
+    }
+    gotoxy(x_offset + width , y_offset);
+    printf("┓");
+
+    for(int i = x_offset + 1;i<x_offset + width; i++){
+        gotoxy(i , y_offset);
+        printf("━");
+    }
+
+    gotoxy(x_offset + 2 , y_offset + 2);
+    printf("SCORE : ");
+    gotoxy(x_offset + 2 , y_offset + 4);
+    printf("속도 : ");
+    gotoxy(x_offset + 2 , y_offset + 5);
+    printf("시작 : space");
+
+    gotoxy(x_offset + 2 , y_offset + 7);
+    printf("이동 : ← →      회전 : ↑      확정 : space");
 }
 
 
@@ -175,7 +266,7 @@ MODE myGameInstance::drawMenu(){
 
 
 //메인 렌더링
-void myGameInstance::drawBoard(int x_offset , int y_offset , int player , Block * b){
+void myGameInstance::drawBoard(int x_offset , int y_offset , int player ){
     
     //게임판 그리기
     //요청받은 플레이어의 게임판을 그린다.
@@ -189,7 +280,7 @@ void myGameInstance::drawBoard(int x_offset , int y_offset , int player , Block 
                     setColor(WHITE , 0);
                     printf(" ");
                 }else if( piece ==  CUR_BLOCK){
-                    setColor(BLOCK_COLOR[b->getCurrentBlock()] , 0);
+                    setColor(BLOCK_COLOR[tetris[player]->getCurrentBlock()] , 0);
                     printf("■");
                 }else if ( piece == SHADOW){
                     setColor(WHITE , 0);
@@ -199,7 +290,7 @@ void myGameInstance::drawBoard(int x_offset , int y_offset , int player , Block 
                     printf("■");
                 }else if(piece == WALL){
                     setColor(WHITE , 0);
-                    printf("□");
+                    printf("▣");
                 }else if(piece < 100){ // 색상 블록일 경우
                     setColor(piece , 0);
                     printf("■");
@@ -212,25 +303,43 @@ void myGameInstance::drawBoard(int x_offset , int y_offset , int player , Block 
     }
 }
 
-void myGameInstance::drawNext(int x_offset , int y_offset , int player , Block * b){
+void myGameInstance::drawNext(int x_offset , int y_offset , int player , int & prev){
+    int next = this->tetris[player]->peekQueueBlock();
+    if(next == prev) return;
 
+    int sx = x_offset + 2;
+    int sy = y_offset + 2;
+
+    // 이전 흔적 지우기
+    for(int i = 0;i < 4; i++){
+        if(prev == -1) break;
+        gotoxy(sx + BLOCK[prev][i][1] , sy + BLOCK[prev][i][0]);
+        printf(" ");
+    }
+    
+    for(int i = 0;i < 4; i++){
+        gotoxy(sx + BLOCK[next][i][1] , sy + BLOCK[next][i][0]);
+        setColor(BLOCK_COLOR[next] , 0);
+        printf("■");
+    }
+    prev = next;
 }
 
 
 // 싱글 게임
-
 int myGameInstance::singleGame(){
-    Block * b = new Block(board[0] , 3);
+    this->tetris[0] = new Block(board[0] , 3);
 
     clock_t last_time = clock();
-
-
-
+    //이전 블록
+    int prev = -1;
+    //점수
+    int score = 0;
     while(1){
         clock_t now = clock();
 
         // 게임판 렌더링
-        this->drawBoard(X_OFFSET , Y_OFFSET , 0 , b);
+        this->drawBoard(X_OFFSET , Y_OFFSET , 0);
         
         //게임 설정
         // while(false && _kbhit()){
@@ -239,13 +348,15 @@ int myGameInstance::singleGame(){
 
         double diff = double(now - last_time) / CLOCKS_PER_SEC;
         
-        bool is_gen = b->onBoardBlock();
+        bool is_gen = this->tetris[0]->onBoardBlock();
         
+        //다음 블록 그리기
+        drawNext(X_OFFSET + 26 , Y_OFFSET , 0 , prev);
         //speed 마다 블록 아래로
         if(diff > SPEED){
             gotoxy(0,0);
             std::cout<<diff;
-            b->moveBlock(DIRECTION::DOWN);
+            this->tetris[0]->moveBlock(DIRECTION::DOWN);
             last_time = now;
         }
         
@@ -255,35 +366,120 @@ int myGameInstance::singleGame(){
             if(ch == 224){
                 ch = _getch();
                 if(ch == 75) // 블록 이동
-                    b->moveBlock(DIRECTION::LEFT);
+                    this->tetris[0]->moveBlock(DIRECTION::LEFT);
                 else if(ch == 77)
-                    b->moveBlock(DIRECTION::RIGHT);
+                    this->tetris[0]->moveBlock(DIRECTION::RIGHT);
                 else if(ch == 80)
-                    b->moveBlock(DIRECTION::DOWN);
+                    this->tetris[0]->moveBlock(DIRECTION::DOWN);
 
                 else if(ch == 72) //블록 회전
-                    b->rotateBlock();
+                    this->tetris[0]->rotateBlock();
 
             }
 
             if(ch == 32){
-                b->spaceKeyPress();
+                this->tetris[0]->spaceKeyPress();
             }
 
         }
         
-        int score = b->clearLine();
-        if(score == -1 || !is_gen) { //반환된 점수가 -1이거나 블록이 생성되지 않았다면 게임 오버
+        int s = this->tetris[0]->clearLine();
+        if(s == -1 || !is_gen) { //반환된 점수가 -1이거나 블록이 생성되지 않았다면 게임 오버
             system("cls");
+            break;
+        }
+
+        score += (100 * s);
+        //추가 점수
+        if(s >= 2) score += (100 * pow(2 , s - 1));
+        
+        gotoxy(40 , 11);
+        setColor(WHITE , 0);
+        printf("%d" , score);
+        //cpu
+        Sleep(30);
+    }
+    //블록 객체 메모리 해제
+    delete this->tetris[0];
+
+    return 0;
+}
+
+
+//로컬 게임, 스레드 활용
+int myGameInstance::localGame(){
+
+    int status = -1;
+    GameWithThread game(this->tetris , board , 1 , PLAYER , &status);
+
+    //스레드 시작
+    game.run();
+
+    clock_t last_time = clock();
+
+    //이전 블록
+    int prev[PLAYER] = {-1 , -1};
+    
+    while(1){
+        clock_t now = clock();
+
+        // 게임판 렌더링
+        this->drawBoard(X_OFFSET , Y_OFFSET , 0);
+        this->drawBoard(X_OFFSET + 50 , Y_OFFSET , 1);
+        
+
+        double diff = double(now - last_time) / CLOCKS_PER_SEC;
+        game.tick();
+        //다음 블록 그리기
+        // drawNext(X_OFFSET + 26 , Y_OFFSET , 0 , prev[0]);
+        // drawNext(X_OFFSET + 26 , Y_OFFSET , 0 , prev[1]);
+
+        //speed 마다 블록 아래로
+        if(diff > SPEED){
+            gotoxy(0,0);
+            // std::cout<<diff;
+            game.moveAll();
+            last_time = now;
+        }
+        
+        //키 입력 들어왔을 때
+        if(_kbhit()){
+            int ch = _getch();
+            
+            if(ch == 119){
+                game.pushKey(UP , 0);
+            }else if(ch == 97){
+                game.pushKey(LEFT , 0);
+            }else if(ch == 115){
+                game.pushKey(DOWN , 0);
+            }else if(ch == 100){
+                game.pushKey(RIGHT , 0);
+            }else if(ch == 32){
+                game.pushKey(SPACE , 0);
+            }else if(ch == 56){
+                game.pushKey(UP , 1);
+            }else if(ch == 52){
+                game.pushKey(LEFT , 1);
+            }else if(ch == 53){
+                game.pushKey(DOWN , 1);
+            }else if(ch == 54){
+                game.pushKey(RIGHT , 1);
+            }else if(ch == 48){
+                game.pushKey(SPACE , 1);
+            }
+
+        }
+        
+
+        if(status >= 0){ //게임이 종료되었을 때
+            //status : 패배한 플레이어
             break;
         }
         
         //cpu
         Sleep(30);
     }
-    //블록 객체 메모리 해제
-    delete b;
-
+    
     return 0;
 }
 
@@ -301,12 +497,21 @@ void myGameInstance::gameLoop()  {
     MODE mode = this->drawMenu();
     system("cls");
     
+    //변하지 않을 화면을 미리 그려둔다.
     this->drawBorder();
 
     switch(mode){
         case MODE::NORMAL:
+            this->drawSingle();
             this->singleGame();
             break;
+        case MODE::PVP_LOCAL:
+            this->localGame();
+            break;
+        
+        case MODE::PVP_SERVER:
+            break;
+
         default:
             this->singleGame();
             break;

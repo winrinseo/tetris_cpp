@@ -2,10 +2,13 @@
  전체적인 게임 로직은 이곳에서 정의
  
 */
+#pragma once
 #include <iostream>
 #include <conio.h>
+#include <cmath>
 #include "gameInstance.h"
 #include "block.h"
+#include "gameWithThread.h"
 
 // 게임 설정
 const int PLAYER = 2;
@@ -32,6 +35,9 @@ private:
     //0 : 빈칸 , 1 : 현재 블록 , 2 : 그림자 , 3 : 블록 , 4 : 벽 , 100 ~ : 색상 블록
     char *** board;
 
+    // 유저별 게임 진행 객체
+    Block ** tetris;
+
     void gameLoop() override;
 
     void gotoxy(int x,int y);
@@ -44,12 +50,17 @@ private:
 
     //테두리 그리는 함수
     void drawBorder();
+    //싱글 게임에서 필요한 화면을 그리는 함수
+    void drawSingle();
+    //pvp 게임에서 필요한 화면을 그리는 함수
+    void drawDouble();
+
     //메뉴 선택
     MODE drawMenu();
     //화면에 게임판 그리는 함수 player에 따라 따로 그림
-    void drawBoard(int x_offset , int y_offset , int player , Block * b);
+    void drawBoard(int x_offset , int y_offset , int player);
     //다음 블록을 그리는 함수
-    void drawNext(int x_offset , int y_offset , int player , Block * b);
+    void drawNext(int x_offset , int y_offset , int player , int & prev);
     //싱글 게임
     int singleGame();
     //멀티 게임
@@ -57,4 +68,8 @@ private:
     //서버 멀티 게임
     int serverGame();
 
+
+public:
+    myGameInstance();
+    ~myGameInstance();
 };

@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <cstdlib>
 #include <queue>
@@ -25,13 +26,13 @@ typedef enum __BOARD {
     MAGENTA,
     YELLOW,
     WHITE,
-    WALL = 99 , EMPTY = 100, CUR_BLOCK , SHADOW , PREV_BLOCK , } _BOARD;
+    WALL = 99 , EMPTY = 100, CUR_BLOCK , SHADOW , PREV_BLOCK } _BOARD;
 
 extern const int BLOCK[7][4][2]; //회전 축은 무조건 idx 0
 extern const _BOARD BLOCK_COLOR[7]; //회전 축은 무조건 idx 0
 
 enum SHAPE {ORIGINAL , ROTATE , MOV};
-enum DIRECTION {UP , DOWN , LEFT , RIGHT};
+enum DIRECTION {UP , DOWN , LEFT , RIGHT , SPACE};
 const int FULLED_LINE = (1 << 11) - 2; //라인이 가득 찼을 때의 비트마스킹
 
 

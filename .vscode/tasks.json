@@ -15,6 +15,7 @@
                 "game/GameInstance.cpp",
                 "game/myGame.cpp",
                 "game/block.cpp",
+                "game/gameWithThread.cpp",
             ],
             "options": {
                 "cwd": "${fileDirname}"
