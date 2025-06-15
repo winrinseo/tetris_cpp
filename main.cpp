@@ -3,7 +3,7 @@
 #include <conio.h>
 #include <ctime>
 
-#include "myGame.h"
+#include "myGameInstance.h"
 
 void initTerminal(){
     char command[100];

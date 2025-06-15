@@ -13,7 +13,7 @@
                 "-I${fileDirname}\\cpp",
                 "-I${fileDirname}\\header",
                 "cpp/GameInstance.cpp",
-                "cpp/myGame.cpp",
+                "cpp/myGameInstance.cpp",
                 "cpp/block.cpp",
                 "cpp/gameWithThread.cpp",
             ],
