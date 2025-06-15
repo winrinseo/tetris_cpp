@@ -10,12 +10,12 @@
                 "${file}",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
-                "-I${fileDirname}\\util",
-                "-I${fileDirname}\\game",
-                "game/GameInstance.cpp",
-                "game/myGame.cpp",
-                "game/block.cpp",
-                "game/gameWithThread.cpp",
+                "-I${fileDirname}\\cpp",
+                "-I${fileDirname}\\header",
+                "cpp/GameInstance.cpp",
+                "cpp/myGame.cpp",
+                "cpp/block.cpp",
+                "cpp/gameWithThread.cpp",
             ],
             "options": {
                 "cwd": "${fileDirname}"
