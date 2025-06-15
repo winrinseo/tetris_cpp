@@ -31,6 +31,11 @@ enum MODE {NORMAL , PVP_LOCAL , PVP_SERVER , MODE_SIZE};
 class myGameInstance : public GameInstance{
 
 private:
+
+    //singleton 패턴
+    myGameInstance();
+    static myGameInstance * instance;
+
     //게임판 
     //0 : 빈칸 , 1 : 현재 블록 , 2 : 그림자 , 3 : 블록 , 4 : 벽 , 100 ~ : 색상 블록
     char *** board;
@@ -70,6 +75,8 @@ private:
 
 
 public:
-    myGameInstance();
+    
     ~myGameInstance();
+
+    static myGameInstance * get();
 };

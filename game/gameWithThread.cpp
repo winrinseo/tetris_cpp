@@ -4,9 +4,11 @@
 GameWithThread::GameWithThread(Block ** tetris , char *** board, int _max_size , int player , int * status) : 
     tetris(tetris),player(player) , status(status){
 
+        //스레드 상태
         _thread = false;
         pressed_key = new std::queue<DIRECTION>[player];
 
+        //스레드 블로킹을 위한 뮤텍스와 상태 변수
         dummy = new std::mutex[player];
         cv = new std::condition_variable[player];
         
@@ -62,10 +64,10 @@ void GameWithThread::worker(int p){
     while(_thread){
         std::unique_lock<std::mutex> lock(dummy[p]);
 
-        //큐가 비어있는 동안 블로킹킹
+        //큐가 비어있는 동안 블로킹
         cv[p].wait(lock , [this , p]{ return !pressed_key[p].empty();}); // 큐가 차있지 않으면 signal 이 들어와도 무시
 
-        //큐가 빌때까지
+        //큐가 빌때까지 각 명령을 수행
         while(!pressed_key[p].empty()){
             DIRECTION next = pressed_key[p].front();
             pressed_key[p].pop();
@@ -91,7 +93,7 @@ void GameWithThread::run(){
     }
 
     for(int i = 0;i<player;i++){
-        threads[i].detach(); //메인스레드 대기없이 스레드 실행행
+        threads[i].detach(); //메인스레드 대기없이 스레드 실행
     }
 }
 

@@ -31,7 +31,7 @@ int main(){
 
     CursorView(0);
     
-    myGameInstance * my = new myGameInstance;
+    myGameInstance * my = myGameInstance::get();
     
     my->start();
     return 0;

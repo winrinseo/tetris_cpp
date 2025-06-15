@@ -10,6 +10,7 @@ void setColor(int color , int bgcolor){
                            (bgcolor << 4) | color);
 }
 
+myGameInstance* myGameInstance::instance = nullptr;
 
 //생성자
 myGameInstance::myGameInstance(){
@@ -19,6 +20,14 @@ myGameInstance::myGameInstance(){
 
 myGameInstance::~myGameInstance(){
     delete[] this->tetris;
+}
+
+//singleton
+myGameInstance * myGameInstance::get(){
+    if(myGameInstance::instance == nullptr){
+        myGameInstance::instance = new myGameInstance();
+    }
+    return instance;
 }
 
 //커서 이동
