@@ -10,6 +10,7 @@ void setColor(int color , int bgcolor){
                            (bgcolor << 4) | color);
 }
 
+//인스턴스 정의
 myGameInstance* myGameInstance::instance = nullptr;
 
 //생성자
@@ -434,7 +435,7 @@ int myGameInstance::localGame(){
 
         // 게임판 렌더링
         this->drawBoard(X_OFFSET , Y_OFFSET , 0);
-        this->drawBoard(X_OFFSET + 50 , Y_OFFSET , 1);
+        this->drawBoard(X_OFFSET + 67 , Y_OFFSET , 1);
         
 
         double diff = double(now - last_time) / CLOCKS_PER_SEC;
@@ -455,6 +456,8 @@ int myGameInstance::localGame(){
         if(_kbhit()){
             int ch = _getch();
             
+            //생산자 소비자 패턴으로 각 스레드에 명령 할당
+            //근데 아무래도 여기서 병목이 좀 걸림.. (개선 필요, 비동기 키보드 입력 함수를 사용하면 될듯)
             if(ch == 119){
                 game.pushKey(UP , 0);
             }else if(ch == 97){
@@ -482,11 +485,17 @@ int myGameInstance::localGame(){
 
         if(status >= 0){ //게임이 종료되었을 때
             //status : 패배한 플레이어
+            gotoxy(40,3);
+            printf("Player %d Win" , (status + 1) % PLAYER);
+            //키보드 입력을 기다림
+            while(!_kbhit()){}
+            _getch();
+            system("cls");
             break;
         }
         
         //cpu
-        Sleep(30);
+        Sleep(10);
     }
     
     return 0;

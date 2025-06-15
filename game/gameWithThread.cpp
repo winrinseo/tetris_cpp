@@ -80,7 +80,7 @@ void GameWithThread::worker(int p){
                 tetris[p]->moveBlock(next);
             }
         }
-        usleep(100000);
+        // usleep(100000);
     }
 }
 
